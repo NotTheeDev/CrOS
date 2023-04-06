@@ -1,30 +1,54 @@
-boot.o : boot.asm
-	nasm boot.asm -o boot.o
+#boot.o : boot.asm
+#	nasm boot.asm -o boot.o
+#
+#kernel_entry.o : kernel_entry.asm
+#	nasm kernel_entry.asm -f elf32 -o kernel_entry.o
+#
+#kernel.o : kernel.c
+#	gcc -m32 -c kernel.c -o kernel.o -ffreestanding -nostdlib -nostdinc
+#
+#kernel.tmp : kernel.o kernel_entry.o
+#	ld -m i386pe -o kernel.tmp -Ttext 0x1000 kernel_entry.o kernel.o
+#
+#kernel.bin : kernel.tmp
+#	objcopy -O binary -j .text kernel.tmp kernel.bin
+#
+#boot.bin : boot.o kernel.bin
+#	type boot.o,kernel.bin > boot.bin
+#
+#kernel.dis : kernel.bin
+#	ndisasm -b 32 $< > $@
+#
+#boot.dis : boot.bin
+#	ndisasm -b 32 $< > $@
+#
 
-kernel_entry.o : kernel_entry.asm
-	nasm kernel_entry.asm -f elf32 -o kernel_entry.o
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h)
 
-kernel.o : kernel.c
-	gcc -m32 -c kernel.c -o kernel.o -ffreestanding -nostdlib -nostdinc
+OBJ = ${C_SOURCES:.c=.o}
 
-kernel.tmp : kernel.o kernel_entry.o
-	ld -m i386pe -o kernel.tmp -Ttext 0x1000 kernel_entry.o kernel.o
+boot.bin : boot/boot.bin kernel.bin
+	type boot\boot.bin,kernel.bin > boot.bin 
 
-kernel.bin : kernel.tmp
+kernel.bin : kernel/kernel_entry.o ${OBJ}
+	ld -m i386pe -o kernel.tmp -Ttext 0x1000 $^
 	objcopy -O binary -j .text kernel.tmp kernel.bin
 
-boot.bin : boot.o kernel.bin
-	type boot.o,kernel.bin > boot.bin
+%.o : %.c ${HEADERS}
+	gcc -ffreestanding -c $< -o $@
 
-kernel.dis : kernel.bin
-	ndisasm -b 32 $< > $@
+%.o : %.asm
+	nasm $< -f elf -o $@
 
-boot.dis : boot.bin
-	ndisasm -b 32 $< > $@
+%.bin : %.asm
+	nasm $< -f bin -I '../../16bit/' -o $@
+
+clean:
+	del *.bin,*.dis,*.tmp
+	del kernel\*.o,drivers\*.o
+	del boot\*.bin
 
 all: boot.bin
-clean:
-	rm -r *.bin,*.dis,*.o,*.tmp
-
 run: boot.bin
 	qemu-system-x86_64 boot.bin

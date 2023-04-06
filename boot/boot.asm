@@ -12,11 +12,12 @@ KERNEL_OFFSET equ 0x1000
     jmp $
 
 ; Remember to put include here, or it will do bads stuff :)
-%include "print.asm"
-%include "gdt.asm"
-%include "switch_pm.asm"
-%include "disk.asm"
-%include "printpm.asm"
+; TODO: Fix inlcude stuff
+%include "boot/print.asm"
+%include "boot/gdt.asm"
+%include "boot/switch_pm.asm"
+%include "boot/disk.asm"
+%include "boot/printpm.asm"
 
 [bits 16]
 load_kernel:
