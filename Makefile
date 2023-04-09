@@ -49,6 +49,9 @@ clean:
 	del kernel\*.o,drivers\*.o
 	del boot\*.bin
 
+fresh_run: clean boot.bin
+	qemu-system-i386 boot.bin
+
 all: boot.bin
 run: boot.bin
-	qemu-system-x86_64 boot.bin
+	qemu-system-i386 boot.bin

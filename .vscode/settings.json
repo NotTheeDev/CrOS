@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "low_level.h": "c",
+        "ports.h": "c",
+        "screen.h": "c"
+    }
+}

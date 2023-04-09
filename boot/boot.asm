@@ -12,7 +12,6 @@ KERNEL_OFFSET equ 0x1000
     jmp $
 
 ; Remember to put include here, or it will do bads stuff :)
-; TODO: Fix inlcude stuff
 %include "boot/print.asm"
 %include "boot/gdt.asm"
 %include "boot/switch_pm.asm"
@@ -25,7 +24,8 @@ load_kernel:
     call print_string
 
     mov bx, KERNEL_OFFSET
-    mov dh, 1
+    mov dh, 2   ; If something doesnt work, try changing it up or down
+                ; It should fix the isue :) IDK HOW BUT YES
     mov dl, [BOOT_DRIVE]
 
     call disk_load
